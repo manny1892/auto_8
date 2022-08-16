@@ -42,8 +42,8 @@ public class DataHelper {
 
     public static VerificationCode getVerificationCodeFor() {
         val verificationCodeSQL = "SELECT code FROM auth_codes ORDER BY created DESC LIMIT 1;";
-        val runner = new QueryRunner();
         String verificationCode;
+        val runner = new QueryRunner();
 
         try (
                 val conn = DriverManager.getConnection(
@@ -61,5 +61,28 @@ public class DataHelper {
     public static VerificationCode getWrongCode() {
         return new VerificationCode("111111");
 
+    }
+
+    public static void clearDB() {
+
+        val deleteAuthCodes = "DELETE FROM auth_codes;";
+        val deleteCardTransactions = "DELETE FROM card_transactions;";
+        val deleteCards = "DELETE FROM cards;";
+        val deleteUsers = "DELETE FROM users;";
+        val runner = new QueryRunner();
+
+        try (
+                val conn = DriverManager.getConnection(
+                        "jdbc:mysql://localhost:3306/app", "app", "pass"
+                );
+        ) {
+            runner.update(conn, deleteAuthCodes);
+            runner.update(conn, deleteCardTransactions);
+            runner.update(conn, deleteCards);
+            runner.update(conn, deleteUsers);
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

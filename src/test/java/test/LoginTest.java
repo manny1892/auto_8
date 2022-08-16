@@ -1,7 +1,9 @@
 package test;
 
 import data.DataHelper;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import page.DashboardPage;
 import page.LoginPage;
 import lombok.val;
@@ -9,14 +11,19 @@ import page.VerificationPage;
 
 import static com.codeborne.selenide.Selenide.open;
 
-class Test {
+class LoginTest {
     @BeforeEach
     void login() {
         open("http://localhost:9999");
     }
 
+    @AfterAll
+    static void clearDB() {
+        DataHelper.clearDB();
+    }
 
-    @org.junit.jupiter.api.Test
+
+    @Test
     void shouldLoginFirstRegisteredUser() {
         var loginPage = new LoginPage();
         var authInfo = DataHelper.getAuthInfoFirstUser();
@@ -27,7 +34,7 @@ class Test {
 
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void shouldLoginSecondRegisteredUser() {
         var loginPage = new LoginPage();
         var authInfo = DataHelper.getAuthInfoSecondUser();
@@ -37,8 +44,8 @@ class Test {
         val dashboardPage = new DashboardPage();
     }
 
-    @org.junit.jupiter.api.Test
-    void NotShouldWithWrongLogin() {
+    @Test
+    void notShouldWithWrongLogin() {
         var loginPage = new LoginPage();
         var authInfo = DataHelper.getAuthInfoWrongLogin();
         loginPage.validLogin(authInfo);
@@ -46,8 +53,8 @@ class Test {
 
     }
 
-    @org.junit.jupiter.api.Test
-    void NotShouldWithWrongPassword() {
+    @Test
+    void notShouldWithWrongPassword() {
         var loginPage = new LoginPage();
         var authInfo = DataHelper.getAuthInfoWrongPassword();
         loginPage.validLogin(authInfo);
@@ -55,15 +62,20 @@ class Test {
 
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void shouldBlockedVerificationPage() {
         var loginPage = new LoginPage();
         var authInfo = DataHelper.getAuthInfoFirstUser();
         loginPage.validLogin(authInfo);
         var verificationPage = new VerificationPage();
         verificationPage.validVerify(DataHelper.getWrongCode());
+        login();
         loginPage.validLogin(authInfo);
         verificationPage.validVerify(DataHelper.getWrongCode());
+        login();
+        loginPage.validLogin(authInfo);
+        verificationPage.validVerify(DataHelper.getWrongCode());
+        login();
         loginPage.validLogin(authInfo);
         verificationPage.validVerify(DataHelper.getWrongCode());
         verificationPage.getBlockedVerificationNotification();
